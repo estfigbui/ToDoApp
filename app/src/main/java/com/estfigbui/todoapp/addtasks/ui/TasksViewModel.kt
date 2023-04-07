@@ -5,8 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.estfigbui.todoapp.addtasks.domain.DeleteTaskUseCase
 import com.estfigbui.todoapp.addtasks.domain.GetTasksUseCase
 import com.estfigbui.todoapp.addtasks.domain.InsertTaskUseCase
+import com.estfigbui.todoapp.addtasks.domain.UpdateTaskUseCase
 import com.estfigbui.todoapp.addtasks.ui.TasksUiState.Success
 import com.estfigbui.todoapp.addtasks.ui.TasksUiState.Error
 import com.estfigbui.todoapp.addtasks.ui.TasksUiState.Loading
@@ -19,6 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val insertTaskUseCase: InsertTaskUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
     getTasksUseCase: GetTasksUseCase,
 ) : ViewModel() {
 
@@ -28,9 +32,6 @@ class TasksViewModel @Inject constructor(
 
     private val _showDialog = MutableLiveData<Boolean>()
     val showDialog: LiveData<Boolean> = _showDialog
-
-    //private val _allTasks = mutableStateListOf<TaskModel>()
-    //val allTasks: List<TaskModel> = _allTasks
 
     fun onDialogClosed() {
         _showDialog.value = false
@@ -49,17 +50,14 @@ class TasksViewModel @Inject constructor(
     }
 
     fun onCheckBoxSelected(task: TaskModel) {
-        /**TODO(Actualizar)*/
-
-        /**val index = _allTasks.indexOf(task)
-        _allTasks[index] = _allTasks[index].let {
-            it.copy(selected = !it.selected)
-        }*/
+        viewModelScope.launch {
+            updateTaskUseCase(task.copy(selected = !task.selected))
+        }
     }
 
     fun onTaskRemoved(taskModel: TaskModel) {
-        /**TODO(Actualizar)*/
-        /**val task = _allTasks.find { it.id == taskModel.id }
-        _allTasks.remove(task)*/
+        viewModelScope.launch {
+            deleteTaskUseCase(taskModel)
+        }
     }
 }
